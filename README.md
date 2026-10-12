@@ -10,11 +10,14 @@ a library — AES comes from my [FIPS 197 implementation](https://github.com/Jul
 ## Layout
 
 One directory per set. Each solution is self-contained and carries its own `main`
-with the challenge's published test vector, so it either prints `PASS` or it doesn't.
+with the challenge's published input, and prints either `PASS` or the recovered key and plaintext.
 
 ```
 set1/Set_1_Challenge_1.cpp
 set1/Set_1_Challenge_2.cpp
+set1/Set_1_Challenge_3.cpp
+set1/Set_1_Challenge_4.cpp
+set1/Challenge 4 text.txt     (input for challenge 4)
 ...
 ```
 
@@ -27,13 +30,15 @@ g++ -std=c++17 -O2 -Wall -Wextra -o challenge set1/Set_1_Challenge_1.cpp
 ./challenge
 ```
 
+Challenge 4 opens `Challenge 4 text.txt` from the current directory, so run it from `set1/`.
+
 ## Progress
 
 **Set 1 — Basics**
 - [x] 1. Convert hex to base64
 - [x] 2. Fixed XOR
-- [ ] 3. Single-byte XOR cipher
-- [ ] 4. Detect single-character XOR
+- [x] 3. Single-byte XOR cipher
+- [x] 4. Detect single-character XOR
 - [ ] 5. Implement repeating-key XOR
 - [ ] 6. Break repeating-key XOR
 - [ ] 7. AES in ECB mode
@@ -48,3 +53,12 @@ characters and `=`.
 
 **Challenge 2.** Fixed XOR over equal-length buffers. The rule throughout is to
 operate on raw bytes and treat hex only as a display format.
+
+**Challenge 3.** Try all 256 single-byte keys and score each output by English letter
+frequency, with space weighted highest (13) because it is the most common character in
+English text. The best score is key `0x58` ('X'): "Cooking MC's like a pound of bacon".
+
+**Challenge 4.** The same search run on each of the 327 lines in the file, keeping the
+best-scoring decryption across all of them. Line 171 decrypts with key `0x35` ('5') to
+"Now that the party is jumping". Every other line is random bytes, so its best key still
+scores far below real English.
