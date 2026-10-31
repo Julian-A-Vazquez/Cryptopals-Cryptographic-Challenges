@@ -18,6 +18,9 @@ set1/Set_1_Challenge_2.cpp
 set1/Set_1_Challenge_3.cpp
 set1/Set_1_Challenge_4.cpp
 set1/Challenge 4 text.txt     (input for challenge 4)
+set1/Set_1_Challenge_5.cpp
+set1/Set_1_Challenge_6.cpp
+set1/Challenge 6 Set 1 text.txt   (input for challenge 6)
 ...
 ```
 
@@ -30,7 +33,8 @@ g++ -std=c++17 -O2 -Wall -Wextra -o challenge set1/Set_1_Challenge_1.cpp
 ./challenge
 ```
 
-Challenge 4 opens `Challenge 4 text.txt` from the current directory, so run it from `set1/`.
+Challenges 4 and 6 open their input files (`Challenge 4 text.txt`, `Challenge 6 Set 1 text.txt`)
+from the current directory, so run them from `set1/`.
 
 ## Progress
 
@@ -39,8 +43,8 @@ Challenge 4 opens `Challenge 4 text.txt` from the current directory, so run it f
 - [x] 2. Fixed XOR
 - [x] 3. Single-byte XOR cipher
 - [x] 4. Detect single-character XOR
-- [ ] 5. Implement repeating-key XOR
-- [ ] 6. Break repeating-key XOR
+- [x] 5. Implement repeating-key XOR
+- [x] 6. Break repeating-key XOR
 - [ ] 7. AES in ECB mode
 - [ ] 8. Detect AES in ECB mode
 
@@ -62,3 +66,16 @@ English text. The best score is key `0x58` ('X'): "Cooking MC's like a pound of 
 best-scoring decryption across all of them. Line 171 decrypts with key `0x35` ('5') to
 "Now that the party is jumping". Every other line is random bytes, so its best key still
 scores far below real English.
+
+**Challenge 5.** Repeating-key XOR: plaintext byte `i` is XORed with key byte `i mod 3`
+under the key "ICE", then hex-encoded and compared against the published ciphertext.
+The plaintext is two lines, so the newline (`0x0a`) between them has to be in the input
+for the output to match.
+
+**Challenge 6.** Breaking repeating-key XOR. The file is base64-decoded, then each
+candidate key length from 2 to 40 is scored by splitting the ciphertext into that many
+columns and averaging each column's index of coincidence over all 256 byte values.
+Each column was encrypted with a single key byte, so the correct length gives the
+least uniform columns and the highest score. This replaces the challenge's suggested
+Hamming-distance test. The best length is 29; each column is then solved with the
+challenge 3 single-byte search, which recovers the key "Terminator X: Bring the noise".
