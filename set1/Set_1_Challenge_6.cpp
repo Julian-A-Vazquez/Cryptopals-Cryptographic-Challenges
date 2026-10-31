@@ -165,7 +165,6 @@ std::vector<uint8_t> xor_bwkey(const std::vector<uint8_t>& a, const std::string&
     }
     return bytes;
 }
-
 std::vector<uint8_t> xor_bytes(const std::vector<uint8_t>& a,
                                uint8_t key) {
     std::vector<uint8_t> bytes;
@@ -209,12 +208,11 @@ uint8_t scan(const std::vector<uint8_t>& decoded) {
 }
 
 int main() {
-    std::ifstream file("Challenge 6 Set 1 text.txt");
+    std::ifstream file("Challenge 6 text.txt");
     if (!file) {
         std::cout << "couldn't open file";
         return 1;
     }
-    std::string expected = "I'm killing your brain like a poisonous mushroom";
     std::string fileText;
     std::string line;
     while (std::getline(file, line)) {

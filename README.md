@@ -20,7 +20,7 @@ set1/Set_1_Challenge_4.cpp
 set1/Challenge 4 text.txt     (input for challenge 4)
 set1/Set_1_Challenge_5.cpp
 set1/Set_1_Challenge_6.cpp
-set1/Challenge 6 Set 1 text.txt   (input for challenge 6)
+set1/Challenge 6 text.txt     (input for challenge 6)
 ...
 ```
 
@@ -33,7 +33,7 @@ g++ -std=c++17 -O2 -Wall -Wextra -o challenge set1/Set_1_Challenge_1.cpp
 ./challenge
 ```
 
-Challenges 4 and 6 open their input files (`Challenge 4 text.txt`, `Challenge 6 Set 1 text.txt`)
+Challenges 4 and 6 open their input files (`Challenge 4 text.txt`, `Challenge 6 text.txt`)
 from the current directory, so run them from `set1/`.
 
 ## Progress
