@@ -5,7 +5,9 @@ Sets 2–7 on the above link. Set 8 (the abstract algebra set) is not published 
 main site but instead here: (https://gist.github.com/arkadiyt/5b33bed653ce1dc26e1df9c249d8919e).
 
 Cryptographic primitives are implemented from scratch rather than pulled from
-a library — AES comes from my [FIPS 197 implementation](https://github.com/Julian-A-Vazquez/aes-128-fips197).
+a library. The exception so far is challenge 7, which uses OpenSSL's AES-128-ECB as the
+challenge suggests; the plan is to swap in my own [FIPS 197 implementation](https://github.com/Julian-A-Vazquez/aes-128-fips197)
+once it's complete.
 
 ## Layout
 
@@ -21,6 +23,10 @@ set1/Challenge 4 text.txt     (input for challenge 4)
 set1/Set_1_Challenge_5.cpp
 set1/Set_1_Challenge_6.cpp
 set1/Challenge 6 text.txt     (input for challenge 6)
+set1/Set_1_Challenge_7.cpp
+set1/Challenge 7 text.txt     (input for challenge 7)
+set1/Set_1_Challenge_8.cpp
+set1/Challenge 8 text.txt     (input for challenge 8)
 ...
 ```
 
@@ -33,8 +39,14 @@ g++ -std=c++17 -O2 -Wall -Wextra -o challenge set1/Set_1_Challenge_1.cpp
 ./challenge
 ```
 
-Challenges 4 and 6 open their input files (`Challenge 4 text.txt`, `Challenge 6 text.txt`)
-from the current directory, so run them from `set1/`.
+Challenges 4, 6, 7 and 8 open their input files (`Challenge 4 text.txt`, `Challenge 6 text.txt`,
+`Challenge 7 text.txt`, `Challenge 8 text.txt`) from the current directory, so run them from `set1/`.
+
+Challenge 7 links against OpenSSL's libcrypto:
+
+```
+g++ -std=c++17 -O2 -Wall -Wextra -o challenge set1/Set_1_Challenge_7.cpp -lcrypto
+```
 
 ## Progress
 
@@ -45,8 +57,8 @@ from the current directory, so run them from `set1/`.
 - [x] 4. Detect single-character XOR
 - [x] 5. Implement repeating-key XOR
 - [x] 6. Break repeating-key XOR
-- [ ] 7. AES in ECB mode
-- [ ] 8. Detect AES in ECB mode
+- [x] 7. AES in ECB mode
+- [x] 8. Detect AES in ECB mode
 
 ## Notes
 
@@ -79,3 +91,12 @@ Each column was encrypted with a single key byte, so the correct length gives th
 least uniform columns and the highest score. This replaces the challenge's suggested
 Hamming-distance test. The best length is 29; each column is then solved with the
 challenge 3 single-byte search, which recovers the key "Terminator X: Bring the noise".
+
+**Challenge 7.** AES-128 in ECB mode under the key "YELLOW SUBMARINE": base64-decode the
+file, then decrypt with OpenSSL's EVP interface (`EVP_aes_128_ecb`). ECB encrypts each
+16-byte block independently with the same key, so there is no IV.
+
+**Challenge 8.** Detecting ECB. Because ECB is deterministic, two identical 16-byte
+plaintext blocks always produce identical ciphertext blocks. Each hex line is split into
+32-character (16-byte) blocks and checked for a repeated block. Line 133 of 204 is the
+only one with repeats, so it is the ECB ciphertext.
