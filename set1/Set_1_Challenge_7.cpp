@@ -6,8 +6,9 @@
 //Easiest way: use OpenSSL and give it AES-128-ECB as the cipher.
 //Do this with code, not the OpenSSL command-line tool: you'll need ECB working in code a lot later on.
 //
-//BUILD (the -lcrypto at the end is required):
-//   g++ -std=c++17 -Wall -Wextra "Challenge 7 Set 1.cpp" -o challenge7.exe -lcrypto
+//BUILD from set1/ (uses my own AES from the aes/ submodule instead of OpenSSL; compile the C file with gcc, then link with g++):
+//   gcc -std=c11 -Wall -Wextra -c ../aes/src/aes.c -o aes.o
+//   g++ -std=c++17 -Wall -Wextra Set_1_Challenge_7.cpp aes.o -o challenge7.exe
 //   .\challenge7.exe
 
 #include <iostream>
@@ -16,12 +17,13 @@
 #include <vector>
 #include <fstream>
 #include <stdexcept>
-#include <openssl/evp.h> //Open SSL library
-
+extern "C" {              
+#include "../aes/src/aes.h"    
+}
 std::vector<uint8_t> base64_to_bytes(const std::string& input) {
     const std::string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     std::string cleaned;
-    for (std::size_t i = 0; i < input.size(); i++) {
+    for (std::size_t i = 0; i < input.size(); i++) { 
         if (input[i] == '=' || alphabet.find(input[i]) != std::string::npos) {
             cleaned += input[i];
         }
@@ -48,25 +50,25 @@ std::vector<uint8_t> base64_to_bytes(const std::string& input) {
 }
 
 std::vector<uint8_t> decrypt(const std::vector<uint8_t>& ciphertext, const std::string& key) {
-    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
-    if (ctx == nullptr){
-        return {};
+    if(key.length() != 16) {
+        throw std::invalid_argument("invalid key length");
+    } 
+    if(ciphertext.size() % 16 != 0|| ciphertext.size() == 0) {
+        throw std::invalid_argument("empty, or invalid ciphertext");
     }
-
-    EVP_DecryptInit_ex(ctx, EVP_aes_128_ecb(), nullptr, reinterpret_cast<const unsigned char*>(key.data()), nullptr);
-    std::vector<uint8_t> out(ciphertext.size() + 16);
-
-    int updates = 0;
-    EVP_DecryptUpdate(ctx, out.data(), &updates, ciphertext.data(), static_cast<int>(ciphertext.size()));
-
-    int updated = 0;
-    EVP_DecryptFinal_ex(ctx, out.data() + updates, &updated);
-
-    EVP_CIPHER_CTX_free(ctx);
-    out.resize(updates + updated);
+    uint8_t w[240];  
+    key_expansion(reinterpret_cast<const uint8_t*>(key.data()), w, 4);
+    std::vector<uint8_t> out(ciphertext.size());
+    for(size_t i = 0; i < ciphertext.size(); i += 16) {
+        aes_decrypt_block(ciphertext.data() + i, out.data() + i, w, 10);
+    }
+    uint8_t last = out[out.size() - 1];
+    if(last > out.size() || last < 1 || last > 16){ 
+        throw std::invalid_argument("invalid value");
+    }
+    out.resize(out.size() - last);
     return out;
 }
-
 int main() {
     std::ifstream file("Challenge 7 text.txt");
     if (!file) {
