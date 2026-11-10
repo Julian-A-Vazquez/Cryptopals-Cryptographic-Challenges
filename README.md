@@ -6,8 +6,8 @@ main site but instead here: (https://gist.github.com/arkadiyt/5b33bed653ce1dc26e
 
 Cryptographic primitives are implemented from scratch rather than pulled from
 a library. The exception so far is challenge 7, which uses OpenSSL's AES-128-ECB as the
-challenge suggests; the plan is to swap in my own [FIPS 197 implementation](https://github.com/Julian-A-Vazquez/aes-128-fips197)
-once it's complete.
+challenge suggests. My own [FIPS 197 implementation](https://github.com/Julian-A-Vazquez/aes-128-fips197) is now complete,
+and swapping it in for OpenSSL here is next.
 
 ## Layout
 
