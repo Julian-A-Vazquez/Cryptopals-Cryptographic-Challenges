@@ -35,6 +35,9 @@ set1/Set_1_Challenge_7.cpp
 set1/Challenge 7 text.txt     (input for challenge 7)
 set1/Set_1_Challenge_8.cpp
 set1/Challenge 8 text.txt     (input for challenge 8)
+set5/Set_5_Challenge_39.cpp
+set5/Set_5_Challenge_40.cpp
+set6/Set_6_Challenge_46.cpp
 ...
 ```
 
@@ -58,6 +61,16 @@ g++ -std=c++17 -O2 -Wall -Wextra Set_1_Challenge_7.cpp aes.o -o challenge
 ./challenge
 ```
 
+Sets 5 and 6 (RSA) use [GMP](https://gmplib.org) for big-integer arithmetic and to find primes
+(`mpz_nextprime`). Everything else, including the modular inverse, modular exponentiation
+and the integer cube root, is written by hand. Install GMP with its C++ bindings (`libgmp-dev`
+on Debian/Ubuntu, or `mingw-w64-x86_64-gmp` in MSYS2), then link it:
+
+```
+g++ -std=c++17 -O2 -Wall -Wextra set5/Set_5_Challenge_39.cpp -o challenge -lgmpxx -lgmp
+./challenge
+```
+
 ## Progress
 
 **Set 1 — Basics**
@@ -69,6 +82,26 @@ g++ -std=c++17 -O2 -Wall -Wextra Set_1_Challenge_7.cpp aes.o -o challenge
 - [x] 6. Break repeating-key XOR
 - [x] 7. AES in ECB mode
 - [x] 8. Detect AES in ECB mode
+
+**Set 5 — Diffie-Hellman and friends**
+- [ ] 33. Implement Diffie-Hellman
+- [ ] 34. Implement a MITM key-fixing attack on Diffie-Hellman with parameter injection
+- [ ] 35. Implement DH with negotiated groups, and break with malicious "g" parameters
+- [ ] 36. Implement Secure Remote Password (SRP)
+- [ ] 37. Break SRP with a zero key
+- [ ] 38. Offline dictionary attack on simplified SRP
+- [x] 39. Implement RSA
+- [x] 40. Implement an E=3 RSA Broadcast attack
+
+**Set 6 — RSA and DSA**
+- [ ] 41. Implement unpadded message recovery oracle
+- [ ] 42. Bleichenbacher's e=3 RSA Attack
+- [ ] 43. DSA key recovery from nonce
+- [ ] 44. DSA nonce recovery from repeated nonce
+- [ ] 45. DSA parameter tampering
+- [x] 46. RSA parity oracle
+- [ ] 47. Bleichenbacher's PKCS 1.5 Padding Oracle (Simple Case)
+- [ ] 48. Bleichenbacher's PKCS 1.5 Padding Oracle (Complete Case)
 
 ## Notes
 
@@ -112,3 +145,20 @@ earlier OpenSSL (`EVP_aes_128_ecb`) version.
 plaintext blocks always produce identical ciphertext blocks. Each hex line is split into
 32-character (16-byte) blocks and checked for a repeated block. Line 133 of 204 is the
 only one with repeats, so it is the ECB ciphertext.
+
+**Challenge 39.** Textbook RSA with e = 3. Key generation picks two random primes of the
+requested size (a random number with its top bit set, then GMP's `mpz_nextprime`), and
+picks again until p ≠ q and e is coprime to (p − 1)(q − 1). `invmod` is the extended
+Euclidean algorithm, and `ModPower` is square-and-multiply. A message is read as one
+big-endian number, encrypted, decrypted, and checked against the original.
+
+**Challenge 40.** The e = 3 broadcast attack. The same message is encrypted under three
+(or more) public keys, then combined with the Chinese Remainder Theorem into one number
+mod n₀·n₁·n₂. Because m³ is smaller than that product, the result is m³ exactly, so an
+integer cube root (binary search) recovers the message without any private key.
+
+**Challenge 46.** RSA parity oracle with a 1024-bit modulus. Multiplying the ciphertext by
+2^e mod n doubles the plaintext, and n is odd, so the parity of the doubled plaintext says
+whether it wrapped past n. Each oracle answer halves the interval [0, n]; the bounds are kept
+as exact fractions (`mpq_class`) so no rounding creeps in. After log₂(n) steps the upper bound
+is the message, and the common prefix of the two bounds prints as it decrypts.
